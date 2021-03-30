@@ -1,11 +1,14 @@
 package com.raywenderlich.listmaker
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.text.InputType
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -18,16 +21,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+
+        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+            showCreateListDialog()
         }
 
-        // 1
+
         listsRecyclerView = findViewById(R.id.lists_recyclerview)
-// 2
+
         listsRecyclerView.layoutManager = LinearLayoutManager(this)
-// 3
+
         listsRecyclerView.adapter = ListSelectionRecyclerViewAdapter()
     }
 
@@ -45,5 +48,21 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+    private fun showCreateListDialog() {
+        val dialogTitle = getString(R.string.name_of_list)
+        val positiveButtonTitle = getString(R.string.create_list)
+
+        val builder = AlertDialog.Builder(this)
+        val listTitleEditText = EditText(this)
+        listTitleEditText.inputType = InputType.TYPE_CLASS_TEXT
+        builder.setTitle(dialogTitle)
+        builder.setView(listTitleEditText)
+
+        builder.setPositiveButton(positiveButtonTitle) { dialog, _ ->
+            dialog.dismiss()
+        }
+
+        builder.create().show()
     }
 }
