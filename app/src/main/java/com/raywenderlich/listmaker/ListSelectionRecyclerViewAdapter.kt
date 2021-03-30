@@ -5,7 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 
-class ListSelectionRecyclerViewAdapter :
+class ListSelectionRecyclerViewAdapter(
+    private val lists:
+    ArrayList<TaskList>
+) :
     RecyclerView.Adapter<ListSelectionViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -29,10 +32,17 @@ class ListSelectionRecyclerViewAdapter :
         position: Int
     ) {
         holder.listPosition.text = (position + 1).toString()
-        holder.listTitle.text = listTitles[position]
+        holder.listTitle.text = lists.get(position).name
     }
 
     override fun getItemCount(): Int {
-        return listTitles.size
+        return lists.size
+    }
+
+    fun addList(list: TaskList) {
+
+        lists.add(list)
+
+        notifyItemInserted(lists.size - 1)
     }
 }
