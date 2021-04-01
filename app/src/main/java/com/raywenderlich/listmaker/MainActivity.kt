@@ -1,6 +1,7 @@
 package com.raywenderlich.listmaker
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -12,8 +13,8 @@ import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener
+ {
     lateinit var listsRecyclerView: RecyclerView
     val listDataManager: ListDataManager = ListDataManager(this)
 
@@ -32,9 +33,9 @@ class MainActivity : AppCompatActivity() {
         listsRecyclerView =
             findViewById<RecyclerView>(R.id.lists_recyclerview)
         listsRecyclerView.layoutManager = LinearLayoutManager(this)
-// 2
+
         listsRecyclerView.adapter =
-            ListSelectionRecyclerViewAdapter(lists)
+            ListSelectionRecyclerViewAdapter(lists, this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun showCreateListDialog() {
         val dialogTitle = getString(R.string.name_of_list)
         val positiveButtonTitle = getString(R.string.create_list)
@@ -69,8 +71,25 @@ class MainActivity : AppCompatActivity() {
                     ListSelectionRecyclerViewAdapter
             recyclerAdapter.addList(list)
             dialog.dismiss()
+            showListDetail(list)
         }
 
         builder.create().show()
+    }
+
+    private fun showListDetail(list: TaskList) {
+
+        val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+
+        listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+
+        startActivity(listDetailIntent)
+    }
+
+     override fun listItemClicked(list: TaskList) {
+         showListDetail(list)
+     }
+    companion object {
+        const val INTENT_LIST_KEY = "list"
     }
 }

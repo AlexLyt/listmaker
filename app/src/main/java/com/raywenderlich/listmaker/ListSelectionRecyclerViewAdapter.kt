@@ -6,10 +6,16 @@ import androidx.recyclerview.widget.RecyclerView
 
 
 class ListSelectionRecyclerViewAdapter(
-    private val lists:
-    ArrayList<TaskList>
+    val lists:
+    ArrayList<TaskList>, val clickListener:
+    ListSelectionRecyclerViewClickListener
 ) :
     RecyclerView.Adapter<ListSelectionViewHolder>() {
+
+    interface ListSelectionRecyclerViewClickListener {
+        fun listItemClicked(list: TaskList)
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -32,7 +38,10 @@ class ListSelectionRecyclerViewAdapter(
         position: Int
     ) {
         holder.listPosition.text = (position + 1).toString()
-        holder.listTitle.text = lists.get(position).name
+        holder.listTitle.text = lists[position].name
+        holder.itemView.setOnClickListener {
+            clickListener.listItemClicked(lists[position])
+        }
     }
 
     override fun getItemCount(): Int {
