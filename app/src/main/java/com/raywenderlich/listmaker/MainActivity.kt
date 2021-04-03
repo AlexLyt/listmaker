@@ -1,5 +1,6 @@
 package com.raywenderlich.listmaker
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -13,8 +14,8 @@ import android.widget.EditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener
- {
+class MainActivity : AppCompatActivity(),
+    ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
     lateinit var listsRecyclerView: RecyclerView
     val listDataManager: ListDataManager = ListDataManager(this)
 
@@ -83,13 +84,33 @@ class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListS
 
         listDetailIntent.putExtra(INTENT_LIST_KEY, list)
 
-        startActivity(listDetailIntent)
+        startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+
     }
 
-     override fun listItemClicked(list: TaskList) {
-         showListDetail(list)
-     }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        var item = data?.getParcelableExtra(INTENT_LIST_KEY) as TaskList?
+        if (item != null) {
+            listDataManager.saveList(item)
+            updateLists()
+        }
+    }
+
+    private fun updateLists() {
+        val lists = listDataManager.readLists()
+        listsRecyclerView.adapter =
+            ListSelectionRecyclerViewAdapter(lists, this)
+    }
+
+
+    override fun listItemClicked(list: TaskList) {
+        showListDetail(list)
+    }
+
     companion object {
         const val INTENT_LIST_KEY = "list"
+        const val LIST_DETAIL_REQUEST_CODE = 123
     }
 }
