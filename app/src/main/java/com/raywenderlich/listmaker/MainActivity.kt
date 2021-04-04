@@ -21,20 +21,26 @@ class MainActivity : AppCompatActivity(),
     private var fragmentContainer: FrameLayout? = null
     private var listSelectionFragment: ListSelectionFragment = ListSelectionFragment.newInstance()
 
-
+    private var largeScreen = false
+    private var listFragment: ListDetailFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        fragmentContainer = findViewById(R.id.fragment_container)
-        supportFragmentManager.beginTransaction().add(R.id.fragment_container, listSelectionFragment).commit()
+        listSelectionFragment =
+            supportFragmentManager
+                .findFragmentById(R.id.list_selection_fragment) as ListSelectionFragment
 
+        fragmentContainer = findViewById(R.id.fragment_container)
+
+        largeScreen = (fragmentContainer != null)
+
+        // Shows create dialog
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
             showCreateListDialog()
         }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -63,7 +69,8 @@ class MainActivity : AppCompatActivity(),
         builder.setTitle(dialogTitle)
         builder.setView(listTitleEditText)
 
-        builder.setPositiveButton(positiveButtonTitle) { dialog, _ ->val list = TaskList(listTitleEditText.text.toString())
+        builder.setPositiveButton(positiveButtonTitle) { dialog, _ ->
+            val list = TaskList(listTitleEditText.text.toString())
             listSelectionFragment.addList(list)
             dialog.dismiss()
             showListDetail(list)
@@ -74,20 +81,34 @@ class MainActivity : AppCompatActivity(),
 
     private fun showListDetail(list: TaskList) {
 
-        val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+        if (!largeScreen) {
+            val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+            listDetailIntent.putExtra(INTENT_LIST_KEY, list)
 
-        listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+            startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+        } else {
+            title = list.name
 
-        startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+            listFragment = ListDetailFragment.newInstance(list)
+            listFragment?.let {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, it, getString(R.string.list_fragment_tag))
+                    .addToBackStack(null)
+                    .commit()
+            }
 
+            findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+                showCreateTaskDialog()
+            }
+        }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int,data: Intent?)
-    {
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         var item = data?.getParcelableExtra(INTENT_LIST_KEY) as TaskList?
 
         super.onActivityResult(requestCode, resultCode, data)
-        if(item != null){
+        if (item != null) {
             listSelectionFragment.saveList(item)
 
         }
@@ -101,4 +122,41 @@ class MainActivity : AppCompatActivity(),
         const val INTENT_LIST_KEY = "list"
         const val LIST_DETAIL_REQUEST_CODE = 123
     }
+
+    private fun showCreateTaskDialog() {
+        val taskEditText = EditText(this)
+        taskEditText.inputType = InputType.TYPE_CLASS_TEXT
+        AlertDialog.Builder(this)
+            .setTitle(R.string.task_to_add)
+            .setView(taskEditText)
+            .setPositiveButton(R.string.add_task) { dialog, _ ->
+                val task = taskEditText.text.toString()
+                listFragment?.addTask(task)
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        title = resources.getString(R.string.app_name)
+
+        listFragment?.list?.let {
+            listSelectionFragment.listDataManager.saveList(it)
+        }
+
+        listFragment?.let {
+            supportFragmentManager
+                .beginTransaction()
+                .remove(it)
+                .commit()
+            listFragment = null
+        }
+
+        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
+            showCreateListDialog()
+        }
+    }
 }
+

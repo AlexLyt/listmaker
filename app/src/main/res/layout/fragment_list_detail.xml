@@ -3,11 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:outlineAmbientShadowColor="#FFFFFF"
+    android:outlineSpotShadowColor="#FFFFFF"
     tools:context=".ListDetailFragment">
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_items_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
+        android:layout_height="match_parent"
+        android:outlineAmbientShadowColor="#0E0202"
+        android:outlineSpotShadowColor="#FFFFFF"></androidx.recyclerview.widget.RecyclerView>
 </FrameLayout>
