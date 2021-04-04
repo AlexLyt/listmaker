@@ -33,25 +33,25 @@ class ListDetailActivity : AppCompatActivity() {
     }
 
     private fun showCreateTaskDialog() {
-//1
+
         val taskEditText = EditText(this)
         taskEditText.inputType = InputType.TYPE_CLASS_TEXT
-//2
+
         AlertDialog.Builder(this)
             .setTitle(R.string.task_to_add)
             .setView(taskEditText)
             .setPositiveButton(R.string.add_task) { dialog, _ ->
-// 3
+
                 val task = taskEditText.text.toString()
                 list?.tasks?.add(task)
-// 4
+
                 val recyclerAdapter = listItemsRecyclerView.adapter
                         as ListItemsRecyclerViewAdapter
                 list?.tasks?.size?.minus(1)?.let { recyclerAdapter.notifyItemInserted(it) }
-//5
+
                 dialog.dismiss()
             }
-//6
+
             .create()
             .show()
     }
